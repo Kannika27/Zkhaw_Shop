@@ -1,4 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useEffect, useState } from "react";
+
 import {
   FlatList,
   Image,
@@ -9,10 +11,21 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+const GITHUB_JSON_URL =
+  "https://raw.githubusercontent.com/Kannika27/JSON-For-Zkaow/main/products.json";
 
-import chair1 from "../../assets/images/chair1.jpg";
-import chair2 from "../../assets/images/chair2.jpg";
-import chair3 from "../../assets/images/chair3.jpg";
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  stock: number;
+  stock_text: string;
+  category: string;
+  location_count: number;
+  location_text: string;
+  badge_status: string;
+  image_url: string;
+}
 
 const COLORS = {
   primary: "#2563EB",
@@ -24,31 +37,20 @@ const COLORS = {
   textSecondary: "#64748B",
 };
 
-const products = [
-  {
-    id: "1",
-    name: "chair 1",
-    price: 99,
-    category: "Chair",
-    image: chair1,
-  },
-  {
-    id: "2",
-    name: "chair 2",
-    price: 999,
-    category: "Chair",
-    image: chair2,
-  },
-  {
-    id: "3",
-    name: "chair 3",
-    price: 699,
-    category: "Chair",
-    image: chair3,
-  },
-];
-
 export default function HomeScreen() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const fetchProducts = async () => {
+    try {
+      const response = await fetch(GITHUB_JSON_URL);
+      const data: Product[] = await response.json();
+      setProducts(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    fetchProducts();
+  }, []);
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -87,10 +89,15 @@ export default function HomeScreen() {
         contentContainerStyle={{ padding: 16 }}
         renderItem={({ item }) => (
           <View style={styles.card}>
-            <Image source={item.image} style={styles.image} />
+            <Image source={{ uri: item.image_url }} style={styles.image} />
+
             <Text style={styles.name}>{item.name}</Text>
+
             <Text style={styles.brand}>{item.category}</Text>
+
             <Text style={styles.price}>{item.price.toLocaleString()} บาท</Text>
+
+            <Text style={styles.brand}>{item.stock_text}</Text>
           </View>
         )}
       />
